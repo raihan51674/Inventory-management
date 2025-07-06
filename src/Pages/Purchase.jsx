@@ -2,89 +2,95 @@ import jsPDF from "jspdf";
 import { useState } from "react";
 import {
   FaCalendarAlt,
+  FaEye,
   FaFileInvoiceDollar,
   FaMobileAlt,
   FaMoneyBillWave,
   FaUserTie,
 } from "react-icons/fa";
+import { Link } from "react-router";
+import Swal from "sweetalert2";
 
 const Purchase = () => {
-  const [purchaseData, setPurchaseData] = useState({
-    supplierName: "",
-    phone: "",
-    model: "",
-    imei: "",
-    quantity: 1,
-    date: "",
-    price: "",
-    notes: "",
-  });
+  const [loading, setLoading] = useState(false);
 
-  const [purchaseList, setPurchaseList] = useState([]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPurchaseData({ ...purchaseData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setPurchaseList([...purchaseList, purchaseData]);
-    alert("✅ Purchase recorded successfully!");
-    setPurchaseData({
-      supplierName: "",
-      phone: "",
-      model: "",
-      imei: "",
-      quantity: 1,
-      date: "",
-      price: "",
-      notes: "",
-    });
+    const form = e.target;
+    const formData = Object.fromEntries(new FormData(form).entries());
+
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:3000/addReceipt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Failed to post data to server");
+
+      form.reset();
+      generatePDF(formData);
+
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Purchase received successfully.",
+        confirmButtonColor: "#3085d6",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      alert("❌ Failed to save purchase or generate PDF.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const generateInvoice = () => {
+  const generatePDF = (data) => {
     const doc = new jsPDF();
 
-    doc.setFontSize(22);
+    doc.setFontSize(18);
     doc.setTextColor("#2c3e50");
-    doc.text("Purchase Invoice", 20, 20);
-
+    doc.text(" Purchase Invoice", 20, 20);
     doc.setLineWidth(0.5);
     doc.line(20, 25, 190, 25);
 
     doc.setFontSize(14);
     doc.setTextColor("#34495e");
-    doc.text("Supplier Information:", 20, 35);
+    doc.text(" Supplier Info", 20, 35);
+
     doc.setFontSize(12);
     doc.setTextColor("#000");
-
-    doc.text(`Name: ${purchaseData.supplierName}`, 20, 45);
-    doc.text(`Phone: ${purchaseData.phone}`, 20, 52);
+    doc.text(`Name: ${data.supplierName}`, 20, 45);
+    doc.text(` Phone: ${data.phone || "N/A"}`, 20, 52);
 
     doc.setFontSize(14);
     doc.setTextColor("#34495e");
-    doc.text("Purchase Details:", 20, 65);
+    doc.text(" Purchase Details", 20, 65);
 
-    doc.setFontSize(12);
-    doc.setTextColor("#000");
     const startY = 75;
     const lineHeight = 8;
 
-    doc.text(`Mobile Model: ${purchaseData.model}`, 20, startY);
-    doc.text(`IMEI Number: ${purchaseData.imei}`, 20, startY + lineHeight);
-    doc.text(`Quantity: ${purchaseData.quantity}`, 20, startY + lineHeight * 2);
-    doc.text(`Date: ${purchaseData.date}`, 20, startY + lineHeight * 3);
-    doc.text(`Total Price: $${purchaseData.price}`, 20, startY + lineHeight * 4);
+    doc.setFontSize(12);
+    doc.setTextColor("#000");
+    doc.text(`Model: ${data.model}`, 20, startY);
+    doc.text(`IMEI: ${data.imei}`, 20, startY + lineHeight);
+    doc.text(` Date: ${data.date}`, 20, startY + lineHeight * 2);
+    doc.text(` Quantity: ${data.quantity}`, 20, startY + lineHeight * 3);
+    doc.text(` Price: $${data.price}`, 20, startY + lineHeight * 4);
 
-    if (purchaseData.notes.trim() !== "") {
+    if (data.notes?.trim()) {
       doc.setFontSize(14);
       doc.setTextColor("#34495e");
-      doc.text("Additional Notes:", 20, startY + lineHeight * 6);
-
+      doc.text(" Rahad Shop", 20, startY + lineHeight * 6);
       doc.setFontSize(12);
       doc.setTextColor("#000");
-      const splitNotes = doc.splitTextToSize(purchaseData.notes, 170);
+      const splitNotes = doc.splitTextToSize(data.notes, 170);
       doc.text(splitNotes, 20, startY + lineHeight * 7);
     }
 
@@ -94,151 +100,67 @@ const Purchase = () => {
     doc.setTextColor("#7f8c8d");
     doc.text("Thank you for your purchase!", 105, 288, null, null, "center");
 
-    doc.save(`PurchaseInvoice-${purchaseData.model || "mobile"}.pdf`);
+    doc.save(`PurchaseInvoice-${data.model || "Mobile"}.pdf`);
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white shadow-xl rounded-2xl mt-8 mb-12">
-      <h2 className="text-3xl font-bold text-center text-blue-800 mb-8">
-        📦 Mobile Purchase from Supplier
-      </h2>
+    <div className="max-w-5xl mx-auto p-8 bg-gradient-to-tr from-white via-blue-50 to-indigo-100 shadow-2xl rounded-3xl mt-8 mb-12 border border-indigo-300">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+        <h2 className="text-3xl font-extrabold text-indigo-900 drop-shadow-sm">
+          📦 Mobile Purchase from Supplier
+        </h2>
+        <Link
+          to="/all-recipt"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition transform hover:scale-105"
+          title="View All Receipts"
+        >
+          <FaEye className="text-lg" /> View All Receipts
+        </Link>
+      </div>
 
-      {/* Purchase Form */}
       <form
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         onSubmit={handleSubmit}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
       >
-        <div className="flex items-center gap-2">
-          <FaUserTie className="text-blue-600" />
-          <input
-            name="supplierName"
-            placeholder="Supplier Name"
-            className="input-style w-full"
-            value={purchaseData.supplierName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <FaMobileAlt className="text-purple-600" />
-          <input
-            name="model"
-            placeholder="Mobile Model"
-            className="input-style w-full"
-            value={purchaseData.model}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <FaMobileAlt className="text-indigo-600" />
-          <input
-            name="imei"
-            placeholder="IMEI Number"
-            className="input-style w-full"
-            value={purchaseData.imei}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <FaCalendarAlt className="text-red-500" />
-          <input
-            type="date"
-            name="date"
-            className="input-style w-full"
-            value={purchaseData.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <FaMoneyBillWave className="text-green-600" />
-          <input
-            type="number"
-            name="price"
-            placeholder="Total Price"
-            className="input-style w-full"
-            value={purchaseData.price}
-            onChange={handleChange}
-            min={0}
-            step="0.01"
-            required
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <FaFileInvoiceDollar className="text-yellow-500" />
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            className="input-style w-full"
-            value={purchaseData.quantity}
-            onChange={handleChange}
-            min={1}
-            required
-          />
-        </div>
+        {[
+          { icon: <FaUserTie className="text-indigo-600" />, name: "supplierName", placeholder: "Supplier Name", required: true },
+          { icon: <FaMobileAlt className="text-purple-600" />, name: "model", placeholder: "Mobile Model", required: true },
+          { icon: <FaMobileAlt className="text-indigo-700" />, name: "imei", placeholder: "IMEI Number", required: true },
+          { icon: <FaCalendarAlt className="text-red-500" />, name: "date", placeholder: "Purchase Date", type: "date", required: true },
+          { icon: <FaMoneyBillWave className="text-green-600" />, name: "price", placeholder: "Total Price ($)", type: "number", min: 0, step: "0.01", required: true },
+          { icon: <FaFileInvoiceDollar className="text-yellow-500" />, name: "quantity", placeholder: "Quantity", type: "number", min: 1, required: true },
+        ].map(({ icon, name, placeholder, type, min, step, required }, idx) => (
+          <div
+            key={idx}
+            className="flex items-center gap-3 rounded-xl bg-white shadow-md border border-indigo-200 focus-within:ring-4 focus-within:ring-indigo-300 transition"
+          >
+            <div className="pl-4">{icon}</div>
+            <input
+              type={type || "text"}
+              name={name}
+              placeholder={placeholder}
+              min={min}
+              step={step}
+              required={required}
+              className="w-full py-3 px-4 rounded-r-xl text-indigo-900 font-medium text-lg placeholder-indigo-400 focus:outline-none bg-transparent"
+            />
+          </div>
+        ))}
 
         <textarea
           name="notes"
           placeholder="Additional Notes..."
-          className="input-style sm:col-span-2 h-24 resize-none w-full"
-          value={purchaseData.notes}
-          onChange={handleChange}
+          className="sm:col-span-2 resize-none h-28 rounded-xl border border-indigo-300 px-5 py-4 text-indigo-900 font-semibold text-lg placeholder-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-400 bg-white shadow-md transition"
         />
 
         <button
           type="submit"
-          className="sm:col-span-2 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+          disabled={loading}
+          className="sm:col-span-2 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-2xl font-extrabold shadow-lg hover:shadow-2xl transform hover:scale-[1.03] transition duration-300 disabled:opacity-50"
         >
-          ✅ Add Purchase
-        </button>
-
-        <button
-          type="button"
-          onClick={generateInvoice}
-          className="sm:col-span-2 w-full flex items-center justify-center gap-2 bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition"
-        >
-          <FaFileInvoiceDollar /> Generate Invoice PDF
+          {loading ? "Processing..." : "✅ Buy Receive in Customer"}
         </button>
       </form>
-
-      {/* Purchase List */}
-      <div className="mt-12">
-        <h3 className="text-2xl font-bold mb-4 text-gray-800">📋 Purchase List</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-max w-full bg-white border border-gray-300 rounded-lg">
-            <thead>
-              <tr className="bg-gray-100 text-sm">
-                <th className="px-4 py-2 border">Supplier</th>
-                <th className="px-4 py-2 border">Model</th>
-                <th className="px-4 py-2 border">IMEI</th>
-                <th className="px-4 py-2 border">Qty</th>
-                <th className="px-4 py-2 border">Price</th>
-                <th className="px-4 py-2 border">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {purchaseList.map((purchase, index) => (
-                <tr key={index} className="text-center text-sm">
-                  <td className="px-4 py-2 border">{purchase.supplierName}</td>
-                  <td className="px-4 py-2 border">{purchase.model}</td>
-                  <td className="px-4 py-2 border">{purchase.imei}</td>
-                  <td className="px-4 py-2 border">{purchase.quantity}</td>
-                  <td className="px-4 py-2 border">${purchase.price}</td>
-                  <td className="px-4 py-2 border">{purchase.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,95 +1,104 @@
-import axios from "axios";
-import { useState } from "react";
+import Swal from "sweetalert2";
 
 const AddMobile = () => {
-  const [formData, setFormData] = useState({
-    brand: "",
-    model: "",
-    ram: "",
-    rom: "",
-    price: "",
-    quantity: "",
-    imei: "",
-    color: "",
-    waterproof: "",
-    support5g: "",
-    displaySize: "",
-    battery: "",
-    camera: "",
-    description: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting data:", formData);
+    const form = e.target;
+    const MobileData = Object.fromEntries(new FormData(form).entries());
 
-    try {
-      const response = await axios.post("https://your-api-url.com/mobiles", formData);
-      console.log("✅ Mobile added successfully:", response.data);
-      alert("✅ Mobile added successfully!");
-      setFormData({
-        brand: "",
-        model: "",
-        ram: "",
-        rom: "",
-        price: "",
-        quantity: "",
-        imei: "",
-        color: "",
-        waterproof: "",
-        support5g: "",
-        displaySize: "",
-        battery: "",
-        camera: "",
-        description: "",
+    MobileData.dateAdded = new Date();
+    MobileData.stockStatus = "In Stock";
+
+    fetch("http://localhost:3000/addMobile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(MobileData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        form.reset();
+        Swal.fire({
+          icon: "success",
+          title: "Mobile added successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Failed to add mobile",
+          text: "Please try again.",
+        });
       });
-    } catch (error) {
-      console.error("❌ Error adding mobile:", error);
-      alert("❌ Failed to add mobile. Please try again.");
-    }
   };
 
   return (
-    <div className="bg-white shadow-md rounded-xl p-8 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">📲 Add New Mobile</h2>
-      <form className="grid grid-cols-1 sm:grid-cols-2 gap-6" onSubmit={handleSubmit}>
-        <input type="text" name="brand" placeholder="🏷️ Brand" className="input-style" value={formData.brand} onChange={handleChange} />
-        <input type="text" name="model" placeholder="📱 Model" className="input-style" value={formData.model} onChange={handleChange} />
-        <input type="text" name="ram" placeholder="🧠 RAM (e.g. 8GB)" className="input-style" value={formData.ram} onChange={handleChange} />
-        <input type="text" name="rom" placeholder="💾 ROM (e.g. 128GB)" className="input-style" value={formData.rom} onChange={handleChange} />
-        <input type="number" name="price" placeholder="💲 Price ($)" className="input-style" value={formData.price} onChange={handleChange} />
-        <input type="number" name="quantity" placeholder="🔢 Quantity" className="input-style" value={formData.quantity} onChange={handleChange} />
-        <input type="text" name="imei" placeholder="🔍 IMEI ID" className="input-style" value={formData.imei} onChange={handleChange} />
-        <input type="text" name="color" placeholder="🎨 Color" className="input-style" value={formData.color} onChange={handleChange} />
-        <select name="waterproof" className="input-style" value={formData.waterproof} onChange={handleChange}>
-          <option value="">💧 Waterproof?</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-        <select name="support5g" className="input-style" value={formData.support5g} onChange={handleChange}>
-          <option value="">📡 5G Supported?</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-        <input type="text" name="displaySize" placeholder="🖥️ Display Size (e.g. 6.5-inch)" className="input-style" value={formData.displaySize} onChange={handleChange} />
-        <input type="text" name="battery" placeholder="🔋 Battery (e.g. 5000mAh)" className="input-style" value={formData.battery} onChange={handleChange} />
-        <input type="text" name="camera" placeholder="📸 Camera (e.g. 64MP + 8MP)" className="input-style" value={formData.camera} onChange={handleChange} />
+    <div className="max-w-4xl mx-auto p-10 bg-gradient-to-tr from-purple-50 via-indigo-50 to-blue-50 rounded-3xl shadow-2xl border border-indigo-200">
+      <h2 className="text-4xl font-extrabold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-700 via-indigo-800 to-blue-700 tracking-wide">
+        📲 Add New Mobile
+      </h2>
+      <form
+        className="grid grid-cols-1 sm:grid-cols-2 gap-8"
+        onSubmit={handleSubmit}
+      >
+        {[
+          { name: "brand", placeholder: "🏷️ Brand", type: "text", required: true },
+          { name: "model", placeholder: "📱 Model", type: "text", required: true },
+          { name: "ram", placeholder: "🧠 RAM (e.g. 8GB)", type: "text" },
+          { name: "rom", placeholder: "💾 ROM (e.g. 128GB)", type: "text" },
+          { name: "price", placeholder: "💲 Price ($)", type: "number", required: true },
+          { name: "quantity", placeholder: "🔢 Quantity", type: "number", required: true },
+          { name: "imei", placeholder: "🔍 IMEI ID", type: "text" },
+          { name: "color", placeholder: "🎨 Color", type: "text" },
+          { name: "waterproof", placeholder: "💧 Waterproof?", type: "select", options: ["", "Yes", "No"] },
+          { name: "support5g", placeholder: "📡 5G Supported?", type: "select", options: ["", "Yes", "No"] },
+          { name: "displaySize", placeholder: "🖥️ Display Size (e.g. 6.5-inch)", type: "text" },
+          { name: "battery", placeholder: "🔋 Battery (e.g. 5000mAh)", type: "text" },
+          { name: "camera", placeholder: "📸 Camera (e.g. 64MP + 8MP)", type: "text" },
+        ].map(({ name, placeholder, type, required, options }) =>
+          type === "select" ? (
+            <select
+              key={name}
+              name={name}
+              className="input-style-modern"
+              defaultValue={""}
+            >
+              {options.map((opt, i) => (
+                <option key={i} value={opt}>
+                  {opt === "" ? placeholder : opt}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              key={name}
+              type={type}
+              name={name}
+              placeholder={placeholder}
+              required={required}
+              className="input-style-modern"
+            />
+          )
+        )}
+
         <textarea
           name="description"
           placeholder="📝 Description..."
-          className="input-style col-span-1 sm:col-span-2 h-24 resize-none"
-          value={formData.description}
-          onChange={handleChange}
+          rows={4}
+          className="input-style-modern col-span-1 sm:col-span-2 resize-none"
         />
-        <button type="submit" className="col-span-1 sm:col-span-2 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">
+
+        <button
+          type="submit"
+          className="col-span-1 sm:col-span-2 bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600
+          hover:from-pink-600 hover:via-purple-700 hover:to-indigo-600
+          text-white font-extrabold py-4 rounded-3xl shadow-xl transition duration-300 ease-in-out"
+        >
           ➕ Add Mobile
         </button>
       </form>

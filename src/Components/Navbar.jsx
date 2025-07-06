@@ -1,56 +1,119 @@
 import {
   FaBoxOpen,
-  FaCartPlus,
   FaCashRegister,
   FaChartBar,
   FaClipboardList,
-  FaEdit,
   FaPlusSquare,
   FaTachometerAlt,
 } from "react-icons/fa";
-import { NavLink } from "react-router"; // fixed import
+import { NavLink } from "react-router";
+
 
 const Navbar = ({ sidebarOpen }) => {
   const navItems = [
     { name: "Dashboard", path: "/Dashboard", icon: <FaTachometerAlt /> },
     { name: "Inventory", path: "/inventory", icon: <FaBoxOpen /> },
-    { name: "Add Mobile", path: "/AddMobile", icon: <FaPlusSquare /> },
-    { name: "Add Purchase", path: "/AddPurchase", icon: <FaCartPlus /> },
-    { name: "Add Sales", path: "/AddSalePage", icon: <FaCashRegister /> },
-    { name: "Buy Recipt", path: "/purchase", icon: <FaClipboardList /> },
-    { name: "Edit Mobile", path: "/EditMobile", icon: <FaEdit /> },
+    { name: "Purchase Mobile", path: "/AddMobile", icon: <FaPlusSquare /> },
+    { name: "Sales Info", path: "/AddSalePage", icon: <FaCashRegister /> },
+    { name: "Buy Receipt", path: "/purchase", icon: <FaClipboardList /> },
     { name: "Report Analysis", path: "/ReportPage", icon: <FaChartBar /> },
   ];
 
   return (
-    <div
-      className={`h-full bg-gray-900 text-white flex flex-col transition-all duration-300 ${
-        sidebarOpen ? "w-64 p-4" : "w-16 p-2"
-      }`}
+    <aside
+      className={`
+        flex flex-col
+        bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900
+        text-white
+        shadow-lg rounded-tr-xl rounded-br-xl
+        transition-all duration-300
+        ${sidebarOpen ? "w-64 p-6" : "w-16 p-4"}
+        h-full
+        select-none
+      `}
     >
       {/* Brand */}
-      {sidebarOpen && (
-        <h1 className="text-2xl font-bold mb-6 text-center">📱 InventorySys</h1>
-      )}
+      <div
+        className={`
+          flex items-center justify-center mb-10
+          ${sidebarOpen ? "justify-start gap-3" : "justify-center"}
+          transition-all duration-300
+        `}
+      >
+        <span
+          className="text-3xl"
+          role="img"
+          aria-label="mobile phone"
+          title="Rahad Shop"
+        >
+          📱
+        </span>
+        {sidebarOpen && (
+          <h1 className="text-2xl font-extrabold tracking-wider select-text">
+            Rahad Shop
+          </h1>
+        )}
+      </div>
 
       {/* Nav Items */}
-      <div className="flex flex-col gap-2">
-        {navItems.map((item) => (
+      <nav className="flex flex-col gap-3 flex-grow">
+        {navItems.map(({ name, path, icon }) => (
           <NavLink
-            key={item.name}
-            to={item.path}
+            key={name}
+            to={path}
             className={({ isActive }) =>
-              `flex items-center gap-3 p-3 rounded-lg text-lg transition-all ${
-                isActive ? "bg-blue-600" : "hover:bg-gray-800"
-              }`
+              `
+                flex items-center gap-4 rounded-lg
+                p-3
+                text-lg font-semibold
+                transition-all duration-300
+                group
+                ${isActive ? "bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg" : "hover:bg-gray-700"}
+                ${sidebarOpen ? "justify-start" : "justify-center"}
+                relative
+              `
             }
+            title={!sidebarOpen ? name : undefined} // Tooltip on icon-only
           >
-            <span className="text-xl">{item.icon}</span>
-            {sidebarOpen && <span>{item.name}</span>}
+            <span
+              className={`
+                text-2xl
+                transition-transform duration-300
+                group-hover:scale-110
+                ${sidebarOpen ? "" : "mx-auto"}
+              `}
+            >
+              {icon}
+            </span>
+            {sidebarOpen && <span>{name}</span>}
+            {!sidebarOpen && (
+              <span
+                className="
+                  absolute left-full top-1/2 -translate-y-1/2
+                  ml-3
+                  bg-gray-800 text-white text-sm rounded-md
+                  px-2 py-1
+                  opacity-0 group-hover:opacity-100
+                  pointer-events-none
+                  whitespace-nowrap
+                  transition-opacity duration-200
+                  select-none
+                "
+              >
+                {name}
+              </span>
+            )}
           </NavLink>
         ))}
-      </div>
-    </div>
+      </nav>
+
+      {/* Footer or extra links */}
+      {sidebarOpen && (
+        <div className="mt-auto pt-4 border-t border-gray-700 text-center text-xs text-gray-400 select-text">
+          © 2025 Rahad Shop
+        </div>
+      )}
+    </aside>
   );
 };
 
