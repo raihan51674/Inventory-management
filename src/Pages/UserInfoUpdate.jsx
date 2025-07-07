@@ -6,6 +6,8 @@ const UserInfoUpdate = () => {
   const rawData = useLoaderData();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+
   const parseData = (data) => ({
     _id: data._id?.$oid || data._id,
     customerName: data.customerName || "",
@@ -83,6 +85,7 @@ const UserInfoUpdate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const partial = Number(formData.partialAmount || 0);
     const total = Number(formData.price || 0);
@@ -94,6 +97,7 @@ const UserInfoUpdate = () => {
         text: "Partial paid amount cannot be greater than total price.",
         confirmButtonColor: "#d33",
       });
+      setLoading(false);
       return;
     }
 
@@ -133,8 +137,23 @@ const UserInfoUpdate = () => {
       navigate("/userInfo");
     } catch (error) {
       alert("Error: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-10 bg-gradient-to-tr from-indigo-50 via-purple-50 to-pink-50 rounded-3xl shadow-2xl border border-indigo-200">

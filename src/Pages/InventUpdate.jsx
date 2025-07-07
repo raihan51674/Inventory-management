@@ -60,12 +60,20 @@ const InventUpdate = () => {
     description: "",
     stockStatus: "",
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles/${id}`)
       .then((res) => res.json())
-      .then((data) => setFormData(data))
-      .catch((err) => console.error("Error loading data:", err));
+      .then((data) => {
+        setFormData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error loading data:", err);
+        setLoading(false);
+      });
   }, [id]);
 
   const handleChange = (e) => {
@@ -99,6 +107,19 @@ const InventUpdate = () => {
       alert("An error occurred");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 px-6 py-12 text-black">

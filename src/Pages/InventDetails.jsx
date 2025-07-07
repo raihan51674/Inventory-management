@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FaArrowLeft,
   FaBatteryFull,
@@ -12,7 +13,26 @@ import {
 import { Link, useLoaderData } from "react-router-dom";
 
 const InventDetails = () => {
+  const [loading, setLoading] = useState(true);
   const data = useLoaderData();
+
+  useEffect(() => {
+    if (data) setLoading(false);
+  }, [data]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const {
     brand,
     model,

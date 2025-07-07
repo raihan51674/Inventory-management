@@ -4,9 +4,11 @@ import { FaSearch } from "react-icons/fa";
 const AllRecipt = () => {
   const [receipts, setReceipts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false); // add loading state
 
   useEffect(() => {
     const fetchReceipts = async () => {
+      setLoading(true); // set loading true before fetch
       try {
         const queryParam = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : "";
         const res = await fetch(
@@ -16,11 +18,26 @@ const AllRecipt = () => {
         setReceipts(data);
       } catch (error) {
         console.error("Error fetching receipts:", error);
+      } finally {
+        setLoading(false); // set loading false after fetch
       }
     };
 
     fetchReceipts();
   }, [searchTerm]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-8 bg-gradient-to-tr from-white via-sky-50 to-indigo-50 rounded-3xl shadow-2xl border border-indigo-200">

@@ -5,12 +5,14 @@ import Swal from "sweetalert2";
 
 const UserInfo = () => {
   const [sales, setSales] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_BASE_URL}/sales`)
       .then((res) => res.json())
-      .then((data) => setSales(data));
+      .then((data) => setSales(data))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleUpdate = (id) => navigate(`/update-sale/${id}`);
@@ -35,6 +37,19 @@ const UserInfo = () => {
       }
     });
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

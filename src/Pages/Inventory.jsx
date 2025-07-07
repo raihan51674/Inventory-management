@@ -14,14 +14,17 @@ const Inventory = () => {
   const [data, setData] = useState([]);
   const [sortKey, setSortKey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles`)
       .then((res) => res.json())
       .then((data) => setData(data))
-      .catch((err) => console.error("Error fetching data:", err));
+      .catch((err) => console.error("Error fetching data:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleDelete = (id) => {
@@ -96,6 +99,20 @@ const Inventory = () => {
     currentPage * itemsPerPage
   );
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  // Loader
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-b from-slate-100 to-white min-h-screen">
