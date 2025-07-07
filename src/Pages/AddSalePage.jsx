@@ -8,16 +8,19 @@ import {
   FaPhone,
   FaUser,
 } from "react-icons/fa";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const AddSalePage = () => {
   const [salesData, setSalesData] = useState({});
   const [paymentType, setPaymentType] = useState("full");
   const [partialAmount, setPartialAmount] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsProcessing(true); // Start processing
     const form = e.target;
     const data = Object.fromEntries(new FormData(form).entries());
 
@@ -54,6 +57,8 @@ const AddSalePage = () => {
         title: "Sale Confirmed!",
         text: "The sale was added successfully and the PDF has been downloaded.",
         confirmButtonColor: "#22c55e",
+      }).then(() => {
+        navigate("/userInfo");
       });
 
       form.reset();
@@ -62,6 +67,8 @@ const AddSalePage = () => {
       setSalesData({});
     } catch (err) {
       console.error("Error:", err);
+    } finally {
+      setIsProcessing(false); // Stop processing
     }
   };
 
@@ -115,9 +122,14 @@ const AddSalePage = () => {
       <div className="flex justify-end mb-8">
         <Link
           to="/userInfo"
-          className="text-sm px-5 py-2 rounded-full bg-indigo-100 text-indigo-700 font-semibold hover:bg-indigo-200 transition"
+          className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-white font-bold shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-white hover:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-300"
+          style={{
+            boxShadow: "0 4px 24px 0 rgba(136, 72, 255, 0.15)",
+            letterSpacing: "0.03em",
+          }}
         >
-          🔍 View Customer Details
+          <span className="text-xl animate-pulse">🔍</span>
+          <span className="tracking-wide drop-shadow">View Customer Details</span>
         </Link>
       </div>
 
@@ -214,8 +226,9 @@ const AddSalePage = () => {
         <button
           type="submit"
           className="md:col-span-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white py-4 rounded-2xl font-extrabold shadow-lg hover:shadow-2xl transform hover:scale-[1.03] transition duration-300"
+          disabled={isProcessing}
         >
-          ✅ Confirm Sale & Download PDF
+          {isProcessing ? "⏳ Processing..." : "✅ Confirm Sale & Download PDF"}
         </button>
       </form>
     </div>
