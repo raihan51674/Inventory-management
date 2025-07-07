@@ -21,13 +21,16 @@ const Purchase = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/addReceipt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/addReceipt`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to post data to server");
 

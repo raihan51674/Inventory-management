@@ -62,7 +62,7 @@ const InventUpdate = () => {
   });
 
   useEffect(() => {
-    fetch(`http://localhost:3000/mobiles/${id}`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles/${id}`)
       .then((res) => res.json())
       .then((data) => setFormData(data))
       .catch((err) => console.error("Error loading data:", err));
@@ -76,7 +76,7 @@ const InventUpdate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:3000/mobiles/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

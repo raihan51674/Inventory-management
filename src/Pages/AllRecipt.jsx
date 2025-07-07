@@ -9,7 +9,9 @@ const AllRecipt = () => {
     const fetchReceipts = async () => {
       try {
         const queryParam = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : "";
-        const res = await fetch(`http://localhost:3000/receipts${queryParam}`);
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/receipts${queryParam}`
+        );
         const data = await res.json();
         setReceipts(data);
       } catch (error) {

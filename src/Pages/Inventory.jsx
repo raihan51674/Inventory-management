@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const getStatusBadge = (status) => {
@@ -15,9 +15,10 @@ const Inventory = () => {
   const [sortKey, setSortKey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/mobiles")
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles`)
       .then((res) => res.json())
       .then((data) => setData(data))
       .catch((err) => console.error("Error fetching data:", err));
@@ -35,7 +36,7 @@ const Inventory = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        fetch(`http://localhost:3000/mobiles/${id}`, { method: "DELETE" })
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles/${id}`, { method: "DELETE" })
           .then(() => {
             setData((prev) => prev.filter((item) => item._id !== id));
             Swal.fire("Deleted!", "The item has been deleted.", "success");
@@ -57,7 +58,7 @@ const Inventory = () => {
     );
 
     // Send update request to backend
-    fetch(`http://localhost:3000/mobiles/${id}`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       // Send only the updated field to backend, assuming partial update is supported
@@ -82,7 +83,7 @@ const Inventory = () => {
 
   const filteredData = data
     .filter((item) =>
-      item?.model?.toLowerCase().includes(search.toLowerCase())
+      item?.brand?.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       if (sortKey === "price") return a.price - b.price;
@@ -98,12 +99,20 @@ const Inventory = () => {
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-b from-slate-100 to-white min-h-screen">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition"
+      >
+        ← Back
+      </button>
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-3xl font-extrabold text-gray-800">📦 Mobile Inventory</h1>
         <div className="flex flex-wrap gap-3">
           <input
             type="text"
-            placeholder="🔍 Search model..."
+            placeholder="🔍 Search name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition-all"

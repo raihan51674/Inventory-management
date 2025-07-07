@@ -34,7 +34,7 @@ const AddSalePage = () => {
     setSalesData(finalData);
 
     try {
-      const res = await fetch("http://localhost:3000/addSale", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/addSale`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -107,16 +107,19 @@ const UserInfoUpdate = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/sales/${formData._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          partialAmount: partial,
-          dueAmount: partial === total ? 0 : Number(formData.dueAmount || 0),
-          createdAt: new Date(formData.createdAt).toISOString(),
-        }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/sales/${formData._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            partialAmount: partial,
+            dueAmount: partial === total ? 0 : Number(formData.dueAmount || 0),
+            createdAt: new Date(formData.createdAt).toISOString(),
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to update user info");
 

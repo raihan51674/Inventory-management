@@ -8,8 +8,7 @@ const UserInfo = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/sales")
-
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/sales`)
       .then((res) => res.json())
       .then((data) => setSales(data));
   }, []);
@@ -28,7 +27,7 @@ const UserInfo = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        fetch(`http://localhost:3000/sales/${id}`, { method: "DELETE" })
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/sales/${id}`, { method: "DELETE" })
           .then(() => {
             setSales((prev) => prev.filter((sale) => (sale._id?.$oid || sale._id) !== id));
             Swal.fire("Deleted!", "The entry has been deleted.", "success");
@@ -107,3 +106,4 @@ const UserInfo = () => {
 };
 
 export default UserInfo;
+

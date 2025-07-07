@@ -30,19 +30,19 @@ const Dashboard = () => {
   const [monthlyAlerts, setMonthlyAlerts] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/total-purchase")
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/total-purchase`)
       .then(res => res.json())
       .then(data => setTotalPrice(data?.totalPrice || 0));
 
-    fetch("http://localhost:3000/total-sales")
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/total-sales`)
       .then(res => res.json())
       .then(data => setTotalSales(data?.totalPrice || 0));
 
-    fetch("http://localhost:3000/total-quantity")
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/total-quantity`)
       .then(res => res.json())
       .then(data => setTotalQuantity(data?.totalQuantity || 0));
 
-    fetch("http://localhost:3000/total-items")
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/total-items`)
       .then(res => res.json())
       .then(data => setTotalItems(data?.totalItems || 0));
 

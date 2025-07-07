@@ -9,7 +9,7 @@ const AddMobile = () => {
     MobileData.dateAdded = new Date();
     MobileData.stockStatus = "In Stock";
 
-    fetch("http://localhost:3000/addMobile", {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/addMobile`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
