@@ -53,23 +53,19 @@ const Inventory = () => {
   };
 
   const handleStatusChange = (id, newStatus) => {
-    // Optimistically update UI first
     setData((prev) =>
       prev.map((item) =>
         item._id === id ? { ...item, stockStatus: newStatus } : item
       )
     );
 
-    // Send update request to backend
     fetch(`${import.meta.env.VITE_API_BASE_URL}/mobiles/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      // Send only the updated field to backend, assuming partial update is supported
       body: JSON.stringify({ stockStatus: newStatus }),
     })
       .then((res) => res.json())
       .then((updated) => {
-        // Merge backend response to keep data consistent
         setData((prev) =>
           prev.map((item) =>
             item._id === id
@@ -80,7 +76,6 @@ const Inventory = () => {
       })
       .catch((err) => {
         console.error("Error updating status:", err);
-        // Optionally revert optimistic update or notify user
       });
   };
 
@@ -100,14 +95,13 @@ const Inventory = () => {
   );
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  // Loader
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[70vh] bg-white">
+      <div className="flex items-center justify-center min-h-[70vh] bg-gradient-to-r from-white via-blue-50 to-indigo-100">
         <div className="relative w-24 h-24">
-          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-blue-200 border-t-indigo-600 animate-spin"></div>
           <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center shadow-inner">
-            <span className="text-blue-600 font-bold animate-pulse">Loading</span>
+            <span className="text-indigo-600 font-bold animate-pulse text-lg">Loading</span>
           </div>
         </div>
       </div>
@@ -115,8 +109,7 @@ const Inventory = () => {
   }
 
   return (
-    <div className="p-6 space-y-8 bg-gradient-to-b from-slate-100 to-white min-h-screen">
-      {/* Back Button */}
+    <div className="p-6 space-y-8 bg-gradient-to-b from-slate-100 to-white min-h-screen rounded-xl shadow-xl">
       <button
         onClick={() => navigate(-1)}
         className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition"
@@ -125,19 +118,19 @@ const Inventory = () => {
       </button>
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-3xl font-extrabold text-gray-800">📦 Mobile Inventory</h1>
+        <h1 className="text-4xl font-black text-gray-900 drop-shadow-sm">📱 Mobile Showcase in Customer</h1>
         <div className="flex flex-wrap gap-3">
           <input
             type="text"
             placeholder="🔍 Search name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition-all"
+            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none shadow-sm"
           />
           <select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value)}
-            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition-all"
+            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none shadow-sm"
           >
             <option value="">Sort By</option>
             <option value="price">Price</option>
@@ -150,10 +143,10 @@ const Inventory = () => {
         {paginatedData.map((item) => (
           <div
             key={item._id}
-            className="bg-white bg-opacity-70 backdrop-blur-lg rounded-2xl p-5 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300"
+            className="bg-white bg-opacity-80 backdrop-blur-md rounded-2xl p-5 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300"
           >
             <div className="space-y-2">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-indigo-800">
                 {item.brand} - {item.model}
               </h2>
               <p className="text-gray-600 text-sm">
@@ -163,7 +156,7 @@ const Inventory = () => {
               <p className="text-gray-800 font-semibold">💵 ${item.price}</p>
               <p className="text-sm text-gray-500">Supplier: {item.supplier}</p>
               <p className="text-sm text-gray-400">
-                🕒 Added: {new Date(item.dateAdded).toLocaleDateString()}
+                🕒 Date: {new Date(item.dateAdded).toLocaleDateString()}
               </p>
               <select
                 value={item.stockStatus || "In Stock"}
@@ -181,19 +174,19 @@ const Inventory = () => {
             <div className="mt-4 flex gap-2">
               <Link
                 to={`/mobiles/details/${item._id}`}
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium py-2 rounded-lg transition"
+                className="flex-1 flex items-center justify-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium py-2 rounded-lg transition"
               >
                 <FaEye /> Details
               </Link>
               <Link
                 to={`/mobiles/update/${item._id}`}
-                className="flex-1 flex items-center justify-center gap-2 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 font-medium py-2 rounded-lg transition"
+                className="flex-1 flex items-center justify-center gap-2 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 font-medium py-2 rounded-lg transition"
               >
                 <FaEdit /> Update
               </Link>
               <button
                 onClick={() => handleDelete(item._id)}
-                className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2 rounded-lg transition"
+                className="flex-1 flex items-center justify-center gap-2 bg-red-100 text-red-700 hover:bg-red-200 font-medium py-2 rounded-lg transition"
               >
                 <FaTrash /> Delete
               </button>
@@ -208,16 +201,15 @@ const Inventory = () => {
         </div>
       )}
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-6 flex-wrap gap-2">
+      <div className="flex justify-center mt-8 flex-wrap gap-2">
         {Array.from({ length: totalPages }).map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrentPage(i + 1)}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition duration-200 ${
               currentPage === i + 1
-                ? "bg-blue-600 text-white shadow"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
           >
             {i + 1}
