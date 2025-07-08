@@ -57,9 +57,9 @@ const AddMobile = () => {
         }, {
           name: "rom", placeholder: "💾 ROM (e.g. 128GB)", type: "text"
         }, {
-          name: "price", placeholder: "💲 Price ($)", type: "number", required: true
+          name: "price", placeholder: "💲 Price ($)", required: true
         }, {
-          name: "quantity", placeholder: "🔢 Quantity", type: "number", required: true
+          name: "quantity", placeholder: "🔢 Quantity", required: true
         }, {
           name: "imei", placeholder: "🔍 IMEI ID", type: "text"
         }, {

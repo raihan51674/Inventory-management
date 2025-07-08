@@ -75,6 +75,18 @@ const UserInfo = () => {
     });
   }
 
+  const totalPrice = displaySales.reduce((acc, sale) => {
+    const price = parseFloat(sale.price?.$numberInt || sale.price || 0);
+    return acc + price;
+  }, 0);
+
+  const totalPaid = displaySales.reduce((acc, sale) => {
+    const paid = parseFloat(sale.partialAmount?.$numberInt || sale.partialAmount || 0);
+    return acc + paid;
+  }, 0);
+
+  const totalDue = totalPrice - totalPaid;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[70vh] bg-gradient-to-r from-sky-50 to-indigo-100">
@@ -89,9 +101,9 @@ const UserInfo = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-xl shadow-xl">
+    <div className="p-6 max-w-7xl mx-auto bg-gradient-to-br from-[#f8fbff] via-[#f1f5ff] to-[#e9f0ff] rounded-3xl shadow-2xl border border-indigo-100">
       <button
-        className="mb-6 flex items-center gap-2 px-5 py-2 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold shadow-md transition-all"
+        className="mb-6 flex items-center gap-2 px-6 py-2 rounded-full bg-white hover:bg-indigo-50 text-indigo-600 font-bold shadow-lg border border-indigo-100 transition duration-300"
         onClick={() => navigate(-1)}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -100,22 +112,21 @@ const UserInfo = () => {
         Back
       </button>
 
-      <h1 className="text-4xl font-black mb-8 text-indigo-900 tracking-wide text-center drop-shadow-md">
-        📊 Sales Summary
+      <h1 className="text-5xl font-extrabold mb-10 text-indigo-800 text-center tracking-tight leading-tight drop-shadow-sm">
+        📊 Sales Dashboard
       </h1>
 
-      {/* Buttons and Search */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-10">
         <button
           onClick={() => {
             setShowNoDueOnly((prev) => !prev);
             if (!showNoDueOnly) setShowDueOnly(false);
           }}
-          className={`w-full bg-green-100 border border-green-300 px-5 py-4 rounded-2xl shadow-xl font-semibold text-green-800 hover:shadow-2xl transition-all duration-200 ${
-            showNoDueOnly ? "ring-2 ring-green-400" : ""
+          className={`w-full bg-white border-2 px-5 py-4 rounded-3xl shadow-md font-semibold text-green-600 hover:shadow-xl transition-all duration-200 ${
+            showNoDueOnly ? "ring-2 ring-green-400 scale-105" : ""
           }`}
         >
-          ✅ {noDueCount} No Due Customer{noDueCount !== 1 && "s"}
+          ✅ {noDueCount} Fully Paid Customer{noDueCount !== 1 && "s"}
         </button>
 
         <div className="flex flex-col items-center gap-3">
@@ -125,10 +136,10 @@ const UserInfo = () => {
             </span>
             <input
               type="text"
-              placeholder="Search by customer name..."
+              placeholder="🔍 Search by customer name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-12 pr-4 py-3 w-full rounded-xl bg-white border border-indigo-200 shadow focus:ring-2 focus:ring-indigo-300 focus:outline-none text-gray-700 text-base"
+              className="pl-12 pr-4 py-3 w-full rounded-2xl bg-white border border-indigo-200 shadow-md focus:ring-2 focus:ring-indigo-400 focus:outline-none text-gray-700 text-base"
             />
           </div>
           <button
@@ -147,15 +158,29 @@ const UserInfo = () => {
             setShowDueOnly((prev) => !prev);
             if (!showDueOnly) setShowNoDueOnly(false);
           }}
-          className={`w-full bg-red-100 border border-red-300 px-5 py-4 rounded-2xl shadow-xl font-semibold text-red-800 hover:shadow-2xl transition-all duration-200 ${
-            showDueOnly ? "ring-2 ring-red-400" : ""
+          className={`w-full bg-white border-2 px-5 py-4 rounded-3xl shadow-md font-semibold text-red-600 hover:shadow-xl transition-all duration-200 ${
+            showDueOnly ? "ring-2 ring-red-400 scale-105" : ""
           }`}
         >
-          ⛔ {dueCount} Due Payment Customer{dueCount !== 1 && "s"}
+          ⛔ {dueCount} Due Customer{dueCount !== 1 && "s"} list
         </button>
       </div>
 
-      {/* Display sales */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white border border-blue-100 px-6 py-6 rounded-3xl shadow-md text-center hover:shadow-xl transition">
+          <h3 className="text-lg font-semibold text-blue-800 mb-1">Total Sales</h3>
+          <p className="text-2xl font-bold text-blue-900">৳ {totalPrice}</p>
+        </div>
+        <div className="bg-white border border-green-100 px-6 py-6 rounded-3xl shadow-md text-center hover:shadow-xl transition">
+          <h3 className="text-lg font-semibold text-green-800 mb-1">Total Paid</h3>
+          <p className="text-2xl font-bold text-green-900">৳ {totalPaid}</p>
+        </div>
+        <div className="bg-white border border-red-100 px-6 py-6 rounded-3xl shadow-md text-center hover:shadow-xl transition">
+          <h3 className="text-lg font-semibold text-red-800 mb-1">Total Due</h3>
+          <p className="text-2xl font-bold text-red-900">৳ {totalDue}</p>
+        </div>
+      </div>
+
       {displaySales.length === 0 ? (
         <p className="text-center text-gray-500 text-lg mt-12">No matching sales found.</p>
       ) : (
@@ -172,10 +197,12 @@ const UserInfo = () => {
             return (
               <div
                 key={id}
-                className="bg-white border border-gray-200 shadow-xl rounded-2xl p-6 hover:shadow-2xl transition duration-300 flex flex-col justify-between"
+                className="bg-white bg-opacity-70 backdrop-blur-md border border-gray-200 shadow-2xl rounded-3xl p-6 hover:shadow-2xl transition duration-300 flex flex-col justify-between"
               >
                 <div>
-                  <h2 className="text-2xl font-bold text-indigo-700 mb-2 truncate">{name}</h2>
+                  <h2 className="text-2xl font-extrabold text-indigo-700 mb-2 truncate tracking-wide">
+                    {name}
+                  </h2>
                   <p className="text-gray-600"><strong>📞 Phone:</strong> {phone}</p>
                   <p className="text-gray-600"><strong>📱 Model:</strong> {model}</p>
                   <p className="text-green-600 font-semibold mt-2">💰 Total: ৳{price}</p>
@@ -183,11 +210,11 @@ const UserInfo = () => {
                   <p className="text-red-600 font-bold text-xl">❗ Due: ৳{due}</p>
 
                   {due === 0 ? (
-                    <div className="mt-4 text-center py-2 bg-green-200 text-green-800 font-bold rounded-full shadow animate-pulse">
+                    <div className="mt-4 text-center py-2 bg-green-100 text-green-700 font-semibold rounded-full shadow-sm animate-bounce">
                       ✅ Payment Complete
                     </div>
                   ) : (
-                    <div className="mt-4 text-center py-2 bg-red-200 text-red-800 font-bold rounded-full shadow animate-pulse">
+                    <div className="mt-4 text-center py-2 bg-red-100 text-red-700 font-semibold rounded-full shadow-sm animate-bounce">
                       ❌ Payment Pending
                     </div>
                   )}
@@ -196,14 +223,14 @@ const UserInfo = () => {
                 <div className="mt-4 flex justify-end gap-3">
                   <button
                     onClick={() => handleUpdate(id)}
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded shadow"
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded-full shadow transition duration-200"
                     title="Update"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => handleDelete(id)}
-                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded shadow"
+                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow transition duration-200"
                     title="Delete"
                   >
                     <FaTrash />

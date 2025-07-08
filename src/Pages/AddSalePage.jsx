@@ -20,12 +20,13 @@ const AddSalePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsProcessing(true); // Start processing
+    setIsProcessing(true);
     const form = e.target;
     const data = Object.fromEntries(new FormData(form).entries());
 
     const finalData = {
       ...data,
+      quantity: 1, // force quantity to 1
       paymentType,
       partialAmount: paymentType === "partial" ? partialAmount : data.price,
       dueAmount:
@@ -68,24 +69,21 @@ const AddSalePage = () => {
     } catch (err) {
       console.error("Error:", err);
     } finally {
-      setIsProcessing(false); // Stop processing
+      setIsProcessing(false);
     }
   };
 
   const generatePdf = (data) => {
     const doc = new jsPDF();
     doc.setFontSize(20).setTextColor(40).text("Mobile Sale Receipt", 20, 20);
-    doc
-      .setFontSize(12)
-      .setTextColor(100)
-      .text("Thank you for your purchase!", 20, 28);
+    doc.setFontSize(12).setTextColor(100).text("Thank you for your purchase!", 20, 28);
     doc.line(20, 32, 190, 32);
 
     let y = 42;
     const fields = [
       { label: "Customer Name", value: data.customerName },
       { label: "Phone Number", value: data.phone },
-      { label: "Quantity", value: data.quantity },
+      { label: "Quantity", value: "1" },
       { label: "Date", value: data.date },
       { label: "IMEI Number", value: data.imei },
       { label: "Total Price", value: `$${data.price}` },
@@ -123,91 +121,72 @@ const AddSalePage = () => {
         <Link
           to="/userInfo"
           className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-white font-bold shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-white hover:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-300"
-          style={{
-            boxShadow: "0 4px 24px 0 rgba(136, 72, 255, 0.15)",
-            letterSpacing: "0.03em",
-          }}
         >
           <span className="text-xl animate-pulse">🔍</span>
-          <span className="tracking-wide drop-shadow">View Customer Details</span>
+          <span className="tracking-wide drop-shadow">View Sales Details</span>
         </Link>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-8"
-      >
-        {[
-          {
-            icon: <FaUser />,
-            name: "customerName",
-            placeholder: "Customer Name",
-          },
-          { icon: <FaPhone />, name: "phone", placeholder: "Phone Number" },
-          {
-            icon: <FaHashtag />,
-            name: "quantity",
-            placeholder: "Quantity",
-            type: "number",
-            min: 1,
-          },
-          {
-            icon: <FaCalendarAlt />,
-            name: "date",
-            placeholder: "Sale Date",
-            type: "date",
-          },
-          {
-            icon: <FaDollarSign />,
-            name: "price",
-            placeholder: "Total Price",
-            type: "number",
-          },
-          { icon: <FaMobileAlt />, name: "imei", placeholder: "IMEI Number" },
-        ].map((field, i) => (
-          <div
-            key={i}
-            className="relative rounded-xl shadow-md bg-white border border-gray-200 focus-within:ring-4 focus-within:ring-indigo-300 transition"
-          >
-            <div className="absolute top-3 left-3 text-indigo-400">{field.icon}</div>
-            <input
-              name={field.name}
-              placeholder={field.placeholder}
-              type={field.type || "text"}
-              min={field.min}
-              required
-              className="pl-12 pr-4 py-3 w-full rounded-xl border-none focus:outline-none text-indigo-900 font-medium text-lg bg-transparent"
-            />
-          </div>
-        ))}
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Customer Name */}
+        <div className="relative rounded-xl shadow-md bg-white border border-gray-200">
+          <div className="absolute top-3 left-3 text-indigo-400"><FaUser /></div>
+          <input name="customerName" placeholder="Customer Name" required className="pl-12 pr-4 py-3 w-full rounded-xl border-none text-indigo-900 font-medium text-lg bg-transparent" />
+        </div>
 
+        {/* Phone */}
+        <div className="relative rounded-xl shadow-md bg-white border border-gray-200">
+          <div className="absolute top-3 left-3 text-indigo-400"><FaPhone /></div>
+          <input name="phone" placeholder="Phone Number" required className="pl-12 pr-4 py-3 w-full rounded-xl border-none text-indigo-900 font-medium text-lg bg-transparent" />
+        </div>
+
+        {/* Quantity (readonly = 1) */}
+        <div className="relative rounded-xl shadow-md bg-white border border-gray-200">
+          <div className="absolute top-3 left-3 text-indigo-400"><FaHashtag /></div>
+          <input name="quantity" value={1} readOnly className="pl-12 pr-4 py-3 w-full rounded-xl border-none bg-gray-100 text-indigo-900 font-semibold text-lg cursor-not-allowed" />
+        </div>
+
+        {/* Date */}
+        <div className="relative rounded-xl shadow-md bg-white border border-gray-200">
+          <div className="absolute top-3 left-3 text-indigo-400"><FaCalendarAlt /></div>
+          <input name="date" type="date" required className="pl-12 pr-4 py-3 w-full rounded-xl border-none text-indigo-900 font-medium text-lg bg-transparent" />
+        </div>
+
+        {/* Total Price */}
+        <div className="relative rounded-xl shadow-md bg-white border border-gray-200">
+          <div className="absolute top-3 left-3 text-indigo-400"><FaDollarSign /></div>
+          <input name="price" placeholder="Total Price"  required className="pl-12 pr-4 py-3 w-full rounded-xl border-none text-indigo-900 font-medium text-lg bg-transparent" />
+        </div>
+
+        {/* IMEI */}
+        <div className="relative rounded-xl shadow-md bg-white border border-gray-200">
+          <div className="absolute top-3 left-3 text-indigo-400"><FaMobileAlt /></div>
+          <input name="imei" placeholder="IMEI Number" required className="pl-12 pr-4 py-3 w-full rounded-xl border-none text-indigo-900 font-medium text-lg bg-transparent" />
+        </div>
+
+        {/* Payment Type */}
         <div className="md:col-span-2">
           <label className="font-semibold text-indigo-700 mb-3 block text-lg select-none">
             Payment Type
           </label>
           <div className="flex gap-8 text-indigo-800 font-semibold">
             {["full", "partial"].map((type) => (
-              <label
-                key={type}
-                className="flex items-center gap-3 cursor-pointer select-none"
-              >
-                <input
-                  type="radio"
-                  value={type}
-                  checked={paymentType === type}
-                  onChange={() => setPaymentType(type)}
-                  className="accent-indigo-500 w-5 h-5"
-                />
+              <label key={type} className="flex items-center gap-3 cursor-pointer select-none">
+                <input type="radio" value={type} checked={paymentType === type} onChange={() => setPaymentType(type)} className="accent-indigo-500 w-5 h-5" />
                 <span className="capitalize">{type} payment</span>
               </label>
             ))}
           </div>
         </div>
 
+        {/* Partial Amount Field */}
         {paymentType === "partial" && (
           <div className="md:col-span-2">
+            <label className="block mb-2 text-indigo-700 font-semibold text-lg">
+              Enter Partial Payment Amount
+            </label>
             <input
-              type="number"
+              
               placeholder="Enter Partial Payment Amount"
               value={partialAmount}
               onChange={(e) => setPartialAmount(e.target.value)}
@@ -217,12 +196,14 @@ const AddSalePage = () => {
           </div>
         )}
 
+        {/* Notes */}
         <textarea
           name="notes"
           placeholder="Additional Notes..."
           className="md:col-span-2 h-28 resize-none px-5 py-4 rounded-xl border border-indigo-300 focus:outline-none focus:ring-4 focus:ring-indigo-400 text-indigo-900 font-semibold text-lg transition"
         />
 
+        {/* Submit Button */}
         <button
           type="submit"
           className="md:col-span-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white py-4 rounded-2xl font-extrabold shadow-lg hover:shadow-2xl transform hover:scale-[1.03] transition duration-300"

@@ -212,7 +212,7 @@ const UserInfoUpdate = () => {
                 Pay Due Amount
               </label>
               <input
-                type="number"
+               
                 name="dueAmount"
                 value={formData.dueAmount}
                 onChange={handleChange}
