@@ -24,7 +24,7 @@ This README contains:
 
 ## Live Project Links
 
-* **Live demo (Client):** `[https://your-live-client-url.com](https://inventory-management-chi-liard.vercel.app)` *(replace with actual URL)*
+* **Live demo (Client): https://inventory-management-chi-liard.vercel.app
 
 
 ---
